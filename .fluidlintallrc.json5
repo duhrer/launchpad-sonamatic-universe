@@ -1,0 +1,9 @@
+{
+    sources: {
+        md:    ["./*.md"],
+        js:    ["./src/**/*.js", "./*.js"],
+        json:  ["./*.json", "!./package-lock.json"],
+        json5: ["./*.json5"],
+        other: ["./.*", "!./package-lock.json"]
+    }
+}

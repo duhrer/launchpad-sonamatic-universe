@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Onscreen Launchpad Demo</title>
+
+        <script src="../../node_modules/infusion/dist/infusion-all.js"></script>
+
+        <!-- Required for MIDI select boxes -->
+        <script src="../../node_modules/flocking-midi/src/core.js"></script>
+        <script src="../../node_modules/flocking-midi/src/receiver.js"></script>
+        <script src="../../node_modules/flocking-midi/src/connection.js"></script>
+        <script src="../../node_modules/flocking-midi/src/system.js"></script>
+        <script src="../../node_modules/flocking-midi/src/controller.js"></script>
+
+        <script src="../../node_modules/flocking/src/ui/selectbox/js/selectbox.js"></script>
+
+        <script src="../../node_modules/flocking-midi/src/ui/port-selector/js/port-selector.js"></script>
+        <script src="../../node_modules/flocking-midi/src/ui/port-selector/js/port-select-box.js"></script>
+        <script src="../../node_modules/flocking-midi/src/ui/connector-view/js/connector-view.js"></script>
+        <script src="../../node_modules/flocking-midi/src/ui/message-monitor-view/js/message-monitor-view.js"></script>
+
+        <script src="../js/utils.js"></script>
+        <script src="../js/stringTemplateRenderingView.js"></script>
+        <script src="../js/pad.js"></script>
+        <script src="../js/gridDefs.js"></script>
+        <script src="../js/grid.js"></script>
+        <script src="../js/router.js"></script>
+
+        <script src="../js/onscreen.js"></script>
+
+        <link rel="stylesheet" href="../css/lsu.css"/>
+    </head>
+    <body>
+        <h3>Onscreen Launchpad Demo</h3>
+        <p>
+            A demonstration of the onscreen launchpad and how it behaves on its own or in combination with a connected
+            controller.
+        </p>
+
+        <div class="onscreen"></div>
+
+        <a href="../../index.html">Select A Different Journey</a>
+
+        <script>
+            var lsu = fluid.registerNamespace("lsu");
+            var component = lsu.onscreen(".onscreen");
+        </script>
+    </body>
+</html>
