@@ -4,6 +4,9 @@
 
     fluid.defaults("lsu.pad.base", {
         gradeNames: ["lsu.templateRenderer"],
+        events: {
+            onMessage: null
+        },
         markup: {
             container: "<div class='lsu-pad'></div>"
         },
@@ -58,9 +61,6 @@
         }
     };
 
-    // TODO: Come up with a structure for managing state, which supports notes including aftertouch and controls.
-    // { channel: 0, type: "note", velocity: 0 }
-    // { channel: 1, type: "control", value: 127 }}
     fluid.defaults("lsu.pad", {
         gradeNames: ["lsu.pad.base"],
         markup: {
@@ -70,12 +70,12 @@
             noBackgroundColour: "background-color: none",
             backgroundColour: "background-color: rgb(%r, %g, %b)"
         },
-        clickKeys: ["Enter", "Space"],
+        clickKeys: ["Enter", " "],
         col: -1,
         row: -1,
         model: {
             velocity: 0,
-            colour: {
+            padColour: {
                 r: 0,
                 g: 0,
                 b: 0
@@ -129,7 +129,7 @@
             }
         },
         modelListeners: {
-            "colour.*": {
+            "padColour": {
                 funcName: "lsu.pad.applyColour",
                 args: ["{that}"]
             },
@@ -141,7 +141,7 @@
     });
 
     lsu.pad.handleKeyEvent = function (that, event, callback) {
-        if (that.options.clickKeys.indexOf(event.keyCode) !== -1) {
+        if (that.options.clickKeys.indexOf(event.key) !== -1) {
             callback(event);
         }
     };
@@ -158,9 +158,9 @@
     };
 
     lsu.pad.applyColour = function (that) {
-        var r = fluid.get(that, "model.colour.r") || 0;
-        var g = fluid.get(that, "model.colour.g") || 0;
-        var b = fluid.get(that, "model.colour.b") || 0;
+        var r = fluid.get(that, "model.padColour.r") || 0;
+        var g = fluid.get(that, "model.padColour.g") || 0;
+        var b = fluid.get(that, "model.padColour.b") || 0;
         var template = (r || g || b) ? that.options.templates.backgroundColour : that.options.templates.noBackgroundColour;
         var backgroundColourCss = fluid.stringTemplate(template, { r: r, g: g, b: b });
         that.container.attr("style", backgroundColourCss );
@@ -174,8 +174,7 @@
         clickVelocity: 100, // Roughly 80% of what's possible (127).
         note: 0,
         model: {
-            note: "{that}.options.note",
-            notes: {}
+            note: "{that}.options.note"
         },
         invokers: {
             handleDown: {
@@ -193,24 +192,18 @@
                 method: "keydown",
                 args: ["{that}.handleKeydown"]
             }
-        },
-        modelRelay: {
-            source: {
-                segs: ["noteColours", "{that}.options.note"]
-            },
-            target: "colour"
         }
     });
 
     lsu.pad.note.handleDown = function (that, event) {
         that.focus();
         event.preventDefault();
-        that.applier.change(["notes", "{that}.options.note"], that.options.clickVelocity);
+        that.events.onMessage.fire({ type: "note", channel: 0, note: that.options.note, velocity: that.options.clickVelocity});
     };
 
     lsu.pad.note.handleUp = function (that, event) {
         event.preventDefault();
-        that.applier.change(["notes", "{that}.options.note"], 0);
+        that.events.onMessage.fire({ type: "note", channel: 0, note: that.options.note, velocity: 0});
     };
 
     fluid.defaults("lsu.pad.control", {
@@ -232,23 +225,17 @@
                 funcName: "lsu.pad.control.handleUp",
                 args: ["{that}", "{arguments}.0"] // event
             }
-        },
-        modelRelay: {
-            source: {
-                segs: ["controlColours", "{that}.options.control"]
-            },
-            target: "colour"
         }
     });
 
     lsu.pad.control.handleDown = function (that, event) {
         that.focus();
         event.preventDefault();
-        that.applier.change(["controls", "{that}.options.control"], that.options.clickValue);
+        that.events.onMessage.fire({ type: "control", channel: 0, number: that.options.control, value: that.options.clickValue});
     };
 
     lsu.pad.control.handleUp = function (that, event) {
         event.preventDefault();
-        that.applier.change(["controls", "{that}.options.control"], 0);
+        that.events.onMessage.fire({ type: "control", channel: 0, number: that.options.control, value: 0});
     };
 })(fluid);

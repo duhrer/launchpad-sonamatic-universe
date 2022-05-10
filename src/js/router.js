@@ -18,8 +18,8 @@
         preferredUIOutputDevice: "Launchpad Pro 7 Standalone Port",
 
         model: {
-            notes: "@expand:lsu.generateNumberKeyedMap(128)",
-            controls: "@expand:lsu.generateNumberKeyedMap(128)"
+            notes: "@expand:fluid.generate(128, 0)",
+            controls: "@expand:fluid.generate(128,0)"
         },
 
         // TODO: Set up some kind of context awareness or other means of setting up different launchpads.
@@ -165,8 +165,7 @@
             brightness: 63,
             contrast:   1,
             colourLevels: "{that}.options.colourSchemes.white",
-            noteColours: "@expand:lsu.generateNumberKeyedMap(128)",
-            controlColours: "@expand:lsu.generateNumberKeyedMap(128)"
+            deviceColours: "@expand:fluid.generate(128, 0)"
         },
         colourSchemes: {
             white:  { r: 1, g: 1,    b: 1, control: 1, velocity: 1  },
@@ -181,9 +180,12 @@
         components: {
             grid: {
                 options: {
-                    model: {
-                        controlColours: "{lsu.router.colour}.model.controlColours",
-                        noteColours: "{lsu.router.colour}.model.noteColours"
+                    modelRelay: {
+                        source: "{lsu.router.colour}.model.deviceColours",
+                        target: "gridColours",
+                        singleTransform: {
+                            type: "lsu.router.colour.deviceToGridColours"
+                        }
                     }
                 }
             },
@@ -221,7 +223,7 @@
                 args: ["{that}"]
             },
 
-            "noteColours": {
+            "deviceColours": {
                 funcName: "lsu.router.colour.paintDevice",
                 args: ["{lsu.router.colour}"]
             },
@@ -270,6 +272,20 @@
         }
     });
 
+    lsu.router.colour.deviceToGridColours = function (deviceColours) {
+        var gridColours = lsu.grid.generateDefaultColourMap();
+
+        fluid.each(deviceColours, function (padColour, note) {
+            var row = 9 - Math.floor(note / 10);
+            var col = note % 10;
+            if (row > 0 && row < 9  && col > 0 && col < 9) {
+                gridColours[row][col] = padColour;
+            }
+        });
+
+        return gridColours;
+    };
+
     // TODO: Figure out how we want to control brightness and contrast.
     lsu.router.colour.calculateSingleColor = function (that, channel, value) {
         var colourLevel = fluid.get(that.model.colourLevels, channel);
@@ -294,13 +310,13 @@
             for (var col = 1; col < 9; col++ ) {
                 var noteNumber = row + col;
 
-                var rValue = fluid.get(that, ["model", "noteColours", noteNumber, "r"]) || 0;
+                var rValue = fluid.get(that, ["model", "deviceColours", noteNumber, "r"]) || 0;
                 colourArray.push(lsu.router.colour.calculateSingleColor(that, "r", rValue / 256));
 
-                var gValue = fluid.get(that, ["model", "noteColours", noteNumber, "g"]) || 0;
+                var gValue = fluid.get(that, ["model", "deviceColours", noteNumber, "g"]) || 0;
                 colourArray.push(lsu.router.colour.calculateSingleColor(that, "g", gValue / 256));
 
-                var bValue = fluid.get(that, ["model", "noteColours", noteNumber, "b"]) || 0;
+                var bValue = fluid.get(that, ["model", "deviceColours", noteNumber, "b"]) || 0;
                 colourArray.push(lsu.router.colour.calculateSingleColor(that, "b", bValue / 256));
             }
         }

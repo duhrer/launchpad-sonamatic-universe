@@ -9,7 +9,6 @@
         },
         cols: "{that}.colDefs.length",
         rows: 10,
-        // We don't need to use {sourcePath}, so we can safely use an array
         colDefs: [],
         dynamicComponents: {
             pad: {
@@ -17,23 +16,27 @@
                 container: "{that}.container",
                 sources: "{that}.options.colDefs",
                 options: {
-                    col: "{source}.col",
-                    row: "{source}.row",
+                    col: "{sourcePath}",
+                    row: "{lsu.row}.options.row",
                     note: "{source}.note",
                     control: "{source}.control",
                     cols: "{lsu.row}.options.cols",
-                    rows: "{lsu.row}.options.row",
+                    rows: "{lsu.row}.options.rows",
+                    listeners: {
+                        "onMessage.relayToGrid": {
+                            func: "{lsu.grid}.events.onPadMessage.fire",
+                            args: ["{arguments}.0"] // midiMessage
+                        }
+                    },
                     model: {
-                        // focus: "{lsu.row}.model.focus",
-                        // notes: "{lsu.row}.model.notes",
-                        // noteColours: "{lsu.row}.model.noteColours",
-                        // controls: "{lsu.row}.model.controls",
-                        // controlColours: "{lsu.row}.model.controlColours"
-                        focus: "{lsu.grid}.model.focus",
-                        notes: "{lsu.grid}.model.notes",
-                        noteColours: "{lsu.grid}.model.noteColours",
-                        controls: "{lsu.grid}.model.controls",
-                        controlColours: "{lsu.grid}.model.controlColours"
+                        focus: "{lsu.grid}.model.focus"
+                    },
+                    modelRelay: {
+                        source: {
+                            context: "row",
+                            segs: ["gridColours", "{sourcePath}"]
+                        },
+                        target: "padColour"
                     }
                 }
             }
@@ -45,15 +48,17 @@
         markup: {
             container: "<div class='lsu-grid'></div>"
         },
+        events: {
+            onPadMessage: null
+        },
+        defaultColour: { r: 0, g: 0, b: 0},
         rows: 0,
         model: {
             focus: { col: 0, row: 0 },
-            notes: "@expand:lsu.generateNumberKeyedMap(128)",
-            noteColours: "@expand:lsu.generateNumberKeyedMap(128)",
-            controls: "@expand:lsu.generateNumberKeyedMap(128)",
-            controlColours: "@expand:lsu.generateNumberKeyedMap(128)"
+            notes: "@expand:fluid.generate(128, 0)",
+            gridColours: "@expand:lsu.grid.generateDefaultColourMap()",
+            controls: "@expand:fluid.generate(128, 0)"
         },
-        // We don't need to use {sourcePath}, so we can safely use an array for now.
         rowDefs: [],
         dynamicComponents: {
             row: {
@@ -61,9 +66,16 @@
                 type: "lsu.row",
                 container: "{that}.container",
                 options: {
+                    row: "{sourcePath}",
                     rows: "{lsu.grid}.options.rows",
-
-                    colDefs: "{source}"
+                    colDefs: "{source}",
+                    modelRelay: {
+                        source: {
+                            context: "grid",
+                            segs: ["gridColours", "{sourcePath}"]
+                        },
+                        target: "gridColours"
+                    }
                 }
             }
         },
@@ -71,6 +83,10 @@
             handleKeydown: {
                 funcName: "lsu.grid.handleKeydown",
                 args: ["{that}", "{arguments}.0"] // event
+            },
+            handlePadMessage: {
+                funcName: "lsu.grid.handlePadMessage",
+                args: ["{that}", "{arguments}.0"] // midiMessage
             }
         },
         listeners: {
@@ -78,9 +94,43 @@
                 this: "{that}.container",
                 method: "keydown",
                 args: ["{that}.handleKeydown"]
+            },
+            "onPadMessage.handlePadMessage": {
+                funcName: "lsu.grid.handlePadMessage",
+                args: ["{that}", "{arguments}.0"] // midiMessage
             }
         }
     });
+
+    lsu.grid.handlePadMessage = function (that, midiMessage) {
+        var toUpdate = midiMessage.type === "control" ? "controls" : "notes";
+        var arrayIndex = midiMessage.type ===  "control" ? midiMessage.number : midiMessage.note;
+        var messageValue = midiMessage.type === "control" ? midiMessage.value : midiMessage.velocity;
+        that.applier.change([toUpdate, arrayIndex], messageValue);
+    };
+
+    lsu.grid.generateDefaultColourMap = function () {
+        var singleRow = fluid.generate(10, function () {
+            return { r: 0, g: 0, b: 0};
+        }, true);
+        var allRows = fluid.generate(9, function () {
+            return fluid.copy(singleRow);
+        }, true);
+
+        allRows.push([
+            { r: 0,   g: 0,   b: 0 },
+            { r: 255, g: 255, b: 255 },
+            { r: 255, g: 0,   b: 0 },
+            { r: 255, g: 64,  b: 0 }, // In HTML the RGB values for orange would be way off, but for the Launchpad Pro it works.
+            { r: 255, g: 255, b: 0 },
+            { r: 0,   g: 255, b: 0 },
+            { r: 0,   g: 255, b: 255 },
+            { r: 0,   g: 0,   b: 255 },
+            { r: 255, g: 0,   b: 255 },
+            {r: 0,    g: 0,   b: 0}
+        ]);
+        return allRows;
+    };
 
     lsu.grid.handleKeydown = function (that, event) {
         var isArrow = ["ArrowLeft", "ArrowDown", "ArrowUp", "ArrowRight"].indexOf(event.key) !== -1;
