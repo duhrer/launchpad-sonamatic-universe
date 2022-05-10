@@ -47,8 +47,10 @@
     };
 
     lsu.onscreen.handlePadMessage = function (that, midiMessage) {
-        // TODO: Consider making this handle all three, note, note on, and note off
-        if (midiMessage.type === "note") {
+        if (midiMessage.type === "control") {
+            that.applier.change(["controls", midiMessage.number], midiMessage.value);
+        }
+        else if (midiMessage.type === "note") {
             that.applier.change(["notes", midiMessage.note], midiMessage.velocity);
         }
     };

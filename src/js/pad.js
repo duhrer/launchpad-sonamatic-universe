@@ -169,7 +169,7 @@
     fluid.defaults("lsu.pad.note", {
         gradeNames: ["lsu.pad"],
         markup: {
-            container: "<button class='lsu-pad lsu-pad-note'>%note</button>"
+            container: "<button class='lsu-pad lsu-pad-note'></button>"
         },
         clickVelocity: 100, // Roughly 80% of what's possible (127).
         note: 0,

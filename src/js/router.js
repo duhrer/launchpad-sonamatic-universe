@@ -279,7 +279,11 @@
             var row = 9 - Math.floor(note / 10);
             var col = note % 10;
             if (row > 0 && row < 9  && col > 0 && col < 9) {
-                gridColours[row][col] = padColour;
+                gridColours[row][col] = {
+                    r: padColour.r * 4,
+                    g: padColour.g * 4,
+                    b: padColour.b * 4
+                };
             }
         });
 
@@ -349,7 +353,7 @@
 
     lsu.router.colour.handleBackControl = function (that, controlValue) {
         if (controlValue) {
-            window.history.back();
+            window.location.assign("../../index.html");
         }
     };
 })(fluid);
