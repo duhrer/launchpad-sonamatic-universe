@@ -70,7 +70,7 @@
             noBackgroundColour: "background-color: none",
             backgroundColour: "background-color: rgb(%r, %g, %b)"
         },
-        clickKeys: ["Enter", "Space"],
+        clickKeys: ["Enter", " "],
         col: -1,
         row: -1,
         model: {
@@ -141,7 +141,7 @@
     });
 
     lsu.pad.handleKeyEvent = function (that, event, callback) {
-        if (that.options.clickKeys.indexOf(event.keyCode) !== -1) {
+        if (that.options.clickKeys.indexOf(event.key) !== -1) {
             callback(event);
         }
     };
@@ -205,12 +205,12 @@
     lsu.pad.note.handleDown = function (that, event) {
         that.focus();
         event.preventDefault();
-        that.applier.change(["notes", "{that}.options.note"], that.options.clickVelocity);
+        that.applier.change(["notes", that.options.note], that.options.clickVelocity);
     };
 
     lsu.pad.note.handleUp = function (that, event) {
         event.preventDefault();
-        that.applier.change(["notes", "{that}.options.note"], 0);
+        that.applier.change(["notes", that.options.note], 0);
     };
 
     fluid.defaults("lsu.pad.control", {
@@ -244,11 +244,11 @@
     lsu.pad.control.handleDown = function (that, event) {
         that.focus();
         event.preventDefault();
-        that.applier.change(["controls", "{that}.options.control"], that.options.clickValue);
+        that.applier.change(["controls", that.options.control], that.options.clickValue);
     };
 
     lsu.pad.control.handleUp = function (that, event) {
         event.preventDefault();
-        that.applier.change(["controls", "{that}.options.control"], 0);
+        that.applier.change(["controls", that.options.control], 0);
     };
 })(fluid);

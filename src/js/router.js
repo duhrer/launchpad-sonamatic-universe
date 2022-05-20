@@ -68,11 +68,11 @@
                             funcName: "lsu.router.handleControl",
                             args: ["{lsu.router}", "{arguments}.0"] // midiMessage
                         },
-                        "noteOn.registerControlValue":  {
+                        "noteOn.registerNoteValue":  {
                             funcName: "lsu.router.handleNote",
                             args: ["{lsu.router}", "{arguments}.0"] // midiMessage
                         },
-                        "noteOff.registerControlValue": {
+                        "noteOff.registerNoteValue": {
                             funcName: "lsu.router.handleNote",
                             args: ["{lsu.router}", "{arguments}.0"] // midiMessage
                         }
