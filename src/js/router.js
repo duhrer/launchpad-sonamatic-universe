@@ -266,9 +266,84 @@
             "controls.98": {
                 funcName: "lsu.router.colour.handleBackControl",
                 args: ["{that}", "{arguments}.0"] // controlValue
+            },
+
+            // "Note Storm" temporary controls to illustrate relay issues.
+            "controls.10": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 1, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.19": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 1, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.20": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 2, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.29": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 2, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.30": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 3, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.39": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 3, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.40": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 4, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.49": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 4, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.50": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 5, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.59": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 5, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.60": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 6, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.69": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 6, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.70": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 7, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.79": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 7, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.80": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 8, "{arguments}.0"] // rowNumber, controlValue
+            },
+            "controls.89": {
+                funcName: "lsu.router.colour.triggerNoteStorm",
+                args: ["{that}", 8, "{arguments}.0"] // rowNumber, controlValue
             }
         }
     });
+
+    lsu.router.colour.triggerNoteStorm = function (that, rowNumber, controlValue) {
+        for (var col = 1; col < 9; col++) {
+            var noteNumber = (rowNumber * 10) + col;
+            // intentionally not batching these to stress the system.
+            that.applier.change(["notes", noteNumber], controlValue);
+        }
+    };
+
 
     // TODO: Figure out how we want to control brightness and contrast.
     lsu.router.colour.calculateSingleColor = function (that, channel, value) {
