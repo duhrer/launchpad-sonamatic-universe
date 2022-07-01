@@ -14,40 +14,61 @@
             uiOutput:   ".lsu-ui-output"
         },
 
-        preferredInputDevice:    "Launchpad Pro 7 Standalone Port",
-        preferredUIOutputDevice: "Launchpad Pro 7 Standalone Port",
-
         model: {
             notes: "@expand:fluid.generate(128, 0)",
-            controls: "@expand:fluid.generate(128,0)"
+            controls: "@expand:fluid.generate(128,0)",
+            port: false,
+            deviceType: "unknown"
         },
 
-        // TODO: Set up some kind of context awareness or other means of setting up different launchpads.
-        setupMessages: [
-            // Boilerplate sysex to set mode and layout, see:
-            // https://customer.novationmusic.com/sites/customer/files/novation/downloads/10598/launchpad-pro-programmers-reference-guide_0.pdf
-            // All sysex messages for the launchpad pro have the same header (framing byte removed)
-            // 00h 20h 29h 02h 10h
-            // Select "standalone" mode.
-            { type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x10, 33, 1] },
-            // Select "programmer" layout
-            { type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x10, 44, 3]}
-        ],
+        modelListeners: {
+            port: {
+                funcName: "lsu.router.setDeviceType",
+                args: ["{that}"]
+            }
+        },
+
+        setupMessages: {
+            // YouMe takes care of the framing bytes for these, so we can omit the leading bytes (`F0h`) and trailing
+            // bytes (`00h` and `F7h`).
+            launchpadPro: [
+                // Boilerplate sysex to set mode and layout, see the Launchpad Pro Programmer's Reference Guide.
+                // All sysex messages for the Launchpad Pro have the same header (framing byte removed):
+                // 00h 20h 29h 02h 10h
+
+                // Select "standalone" mode (33 is the mode select, 1 is the value for standalone).
+                { type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x10, 33, 1] },
+
+                // Select "programmer" layout (44 is the layout select, 3 is the value for programmer).
+                { type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x10, 44, 3]}
+            ],
+            launchpadPro3:  [
+                // Sysex to set the layout to "programmer", see the Launchpad Pro MK3 Programmer's Reference Guide.
+                // All sysex messages for the Launchpad Pro MK3 have the same header (framing byte removed):
+                // 00h 20h 29h 02h 0Eh
+
+                // The command to change the mode to programmer mode is:
+                // Hex Version: 00h 20h 29h 02h 0Eh 0Eh <Mode>
+                // Where <mode> is 0 for live mode, 1 for programmer mode
+                { type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x0E, 0x0E, 0x1]},
+
+                // The command to change the layout (minus framing bytes is):
+                // 00h 20h 29h 02h 0Eh 00h <layout> <page>
+                // <layout> - Hex: 11h / Decimal: 17 --- Programmer Mode
+                // <page> - Hex: 00h / Decimal: 0 --- for any other view
+                { type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x0E, 0x11, 0]}
+            ]
+        },
 
         invokers: {
-            sendToNoteOut: {
-                funcName: "lsu.router.sendToOutput",
-                args: ["{noteOutput}", "{arguments}.0"] // outputComponent, message
-            },
             sendToUi: {
-                funcName: "lsu.router.sendToOutput",
-                args: ["{uiOutput}", "{arguments}.0"] // outputComponent, message
+                func: "{uiOutput}.events.sendMessage.fire",
+                args: ["{arguments}.0"] // outputComponent, message
             }
         },
 
         components: {
             grid: {
-                // TODO: Make this more flexible
                 type: "lsu.grid.launchpadPro",
                 container: "{that}.dom.grid",
                 options: {
@@ -58,75 +79,51 @@
                 }
             },
             noteInput: {
-                type: "flock.midi.connectorView",
+                type: "youme.portSelectorView.input",
                 container: "{that}.dom.noteInput",
                 options: {
-                    preferredPort: "{lsu.router}.options.preferredInputDevice",
-                    portType: "input",
+                    desiredPortSpec: { name: "Launchpad Pro" },
                     listeners: {
-                        "control.registerControlValue": {
+                        "onControl.registerControlValue": {
                             funcName: "lsu.router.handleControl",
                             args: ["{lsu.router}", "{arguments}.0"] // midiMessage
                         },
-                        "noteOn.registerControlValue":  {
+                        "onNoteOn.registerControlValue":  {
                             funcName: "lsu.router.handleNote",
                             args: ["{lsu.router}", "{arguments}.0"] // midiMessage
                         },
-                        "noteOff.registerControlValue": {
+                        "onNoteOff.registerControlValue": {
                             funcName: "lsu.router.handleNote",
                             args: ["{lsu.router}", "{arguments}.0"] // midiMessage
                         }
                     },
-                    components: {
-                        midiPortSelector: {
-                            options: {
-                                strings: {
-                                    selectBoxLabel: "Note Input"
-                                }
-                            }
-                        }
-                    }
+                    selectBoxLabel: "Note Input"
                 }
             },
             noteOutput: {
-                type: "flock.midi.connectorView",
+                type: "youme.portSelectorView.output",
                 container: "{that}.dom.noteOutput",
                 options: {
-                    preferredPort: "{lsu.router}.options.preferredOutputDevice",
-                    portType: "output",
-                    components: {
-                        midiPortSelector: {
-                            options: {
-                                strings: {
-                                    selectBoxLabel: "Note Output"
-                                }
-                            }
-                        }
-                    }
+                    selectBoxLabel: "Note Output"
                 }
             },
             uiOutput: {
-                type: "flock.midi.connectorView",
+                type: "youme.portSelectorView.output",
                 container: "{that}.dom.uiOutput",
                 options: {
-                    portType: "output",
-                    preferredPort: "{lsu.router}.options.preferredUIOutputDevice",
+                    desiredPortSpec: { name: "Launchpad Pro" },
+                    selectBoxLabel: "UI Output",
                     components: {
-                        connection: {
+                        portConnector: {
                             options: {
-                                sysex: true, // Required to configure the Launchpad Pro.
                                 listeners: {
-                                    "onReady.setupDevice": {
-                                        funcName: "fluid.each",
-                                        args:     ["{lsu.router}.options.setupMessages", "{lsu.router}.sendToUi"]
+                                    "onPortOpen.setupDevice": {
+                                        funcName: "lsu.router.setupDevice",
+                                        args:     ["{lsu.router}"]
                                     }
-                                }
-                            }
-                        },
-                        midiPortSelector: {
-                            options: {
-                                strings: {
-                                    selectBoxLabel: "UI Output"
+                                },
+                                model: {
+                                    connectionPort: "{lsu.router}.model.port"
                                 }
                             }
                         }
@@ -135,13 +132,6 @@
             }
         }
     });
-
-    lsu.router.sendToOutput = function (outputComponent, message) {
-        var outputConnection = fluid.get(outputComponent, "connection");
-        if (outputConnection) {
-            outputConnection.send(message);
-        }
-    };
 
     lsu.router.handleControl = function (that, midiMessage) {
         var controlNumber = fluid.get(midiMessage, "number");
@@ -159,10 +149,31 @@
         }
     };
 
+    lsu.router.setDeviceType = function (that) {
+        var deviceType = "unknown";
+        var deviceName = fluid.get(that, "model.port.name");
+        if (typeof deviceName === "string") {
+            if (deviceName.match(/^Launchpad Pro MK3.+MIDI$/)) {
+                deviceType = "launchpadPro3";
+            }
+            else if (deviceName.match(/^Launchpad Pro.+Standalone Port$/)) {
+                deviceType = "launchpadPro";
+            }
+        }
+        that.applier.change("deviceType", deviceType);
+    };
+
+    lsu.router.setupDevice = function (that) {
+        var sysexPayload = fluid.get(that, ["options", "setupMessages", that.model.deviceType]);
+        fluid.each(sysexPayload, function (sysexMessage) {
+            that.sendToUi(sysexMessage);
+        });
+    };
+
     fluid.defaults("lsu.router.colour", {
         gradeNames: ["lsu.router"],
         model: {
-            brightness: 63,
+            brightness: 63, // Full brightness on the Launchpad Pro
             contrast:   1,
             colourLevels: "{that}.options.colourSchemes.white",
             deviceColours: "@expand:fluid.generate(128, 0)"
@@ -180,6 +191,7 @@
         components: {
             grid: {
                 options: {
+                    // TODO: This will also need to be more flexible, particularly for much older launchpads.
                     modelRelay: {
                         source: "{lsu.router.colour}.model.deviceColours",
                         target: "gridColours",
@@ -192,12 +204,21 @@
             uiOutput: {
                 options: {
                     components: {
-                        connection: {
+                        portConnector: {
                             options: {
-                                listeners: {
-                                    "onReady.paintKeys": {
-                                        funcName: "lsu.router.colour.paintDevice",
-                                        args: ["{lsu.router.colour}"]
+                                dynamicComponents: {
+                                    connection: {
+                                        options: {
+                                            model: {
+                                                port: "{lsu.router}.model.port"
+                                            },
+                                            listeners: {
+                                                "onPortOpen.paintKeys": {
+                                                    funcName: "lsu.router.colour.paintDevice",
+                                                    args: ["{lsu.router.colour}"]
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -291,55 +312,108 @@
     };
 
     // TODO: Figure out how we want to control brightness and contrast.
-    lsu.router.colour.calculateSingleColor = function (that, channel, value) {
+    lsu.router.colour.calculateSingleColor = function (that, channel, value, isLaunchpadPro3) {
         var colourLevel = fluid.get(that.model.colourLevels, channel);
-        var calculatedColourLevel = Math.round(that.model.brightness * colourLevel * value);
+        var scaleFactor = isLaunchpadPro3 ? 2 : 1;
+        var calculatedColourLevel = Math.round(that.model.brightness * colourLevel * value * scaleFactor);
         return calculatedColourLevel;
     };
 
-    lsu.router.colour.paintDevice = function (that) {
-        var header = [
-            // common header
-            0, 0x20, 0x29, 0x02, 0x10,
-            // "RGB Grid Sysex" command
-            0xF,
-            // 0: all pads, 1: square drum pads only.
-            1
-        ];
-
-        var colourArray = [];
-
-        // TODO: Works for launchpad pro, will need a more robust strategy to support other devices.
-        for (var row = 10; row < 90; row += 10) {
-            for (var col = 1; col < 9; col++ ) {
-                var noteNumber = row + col;
-
-                var rValue = fluid.get(that, ["model", "deviceColours", noteNumber, "r"]) || 0;
-                colourArray.push(lsu.router.colour.calculateSingleColor(that, "r", rValue / 256));
-
-                var gValue = fluid.get(that, ["model", "deviceColours", noteNumber, "g"]) || 0;
-                colourArray.push(lsu.router.colour.calculateSingleColor(that, "g", gValue / 256));
-
-                var bValue = fluid.get(that, ["model", "deviceColours", noteNumber, "b"]) || 0;
-                colourArray.push(lsu.router.colour.calculateSingleColor(that, "b", bValue / 256));
-            }
+    lsu.router.colour.getDeviceHeaders = function (that){
+        if (that.model.deviceType === "launchpadPro") {
+            return [
+                // common header (for Launchpad Pro)
+                0, 0x20, 0x29, 0x02, 0x10,
+                // "RGB Grid Sysex" command
+                0xF,
+                // 0: all pads, 1: square drum pads only.  We use "all pads" to match the behaviour of the pro MK3.
+                0
+            ];
+        }
+        else if (that.model.deviceType === "launchpadPro3") {
+            return [
+                // common header (for Launchpad Pro 3)
+                0, 0x20, 0x29, 0x02, 0xe,
+                // RGB Mode on the Pro 3
+                0x3
+            ];
         }
 
-        var data = header.concat(colourArray);
-        that.sendToUi({
-            type: "sysex",
-            data: data
+        return [];
+    };
+
+    lsu.router.colour.colourArrayFromDeviceColours = function (that, isLaunchpadPro3) {
+        var colourArray = [];
+
+        // The first row (from the bottom) are the colour controls.
+
+        // Leave a space for the nonexistent leading column.
+        colourArray.push([0,0,0]);
+
+        var hightIntensity = isLaunchpadPro3 ? 127 : 63;
+        var lowIntensity = isLaunchpadPro3 ? 0x10 : 0x08;
+
+        // Paint each of the colour controls.
+
+        var cellIndex = 1;
+        fluid.each(that.options.colourSchemes, function (colourScheme, colourSchemeName) {
+            var intensity = (colourSchemeName === that.model.colourSchemeName) ? hightIntensity : lowIntensity;
+            var colourData = [colourScheme.r * intensity, colourScheme.g * intensity, colourScheme.b * intensity];
+
+            // The pro 3 has an extended format in which you send the cell index and a flag for solid/blinking/pulsing.
+            var cellData = isLaunchpadPro3 ? [3, cellIndex].concat(colourData) : colourData;
+            colourArray.push(cellData);
+            cellIndex++;
         });
 
-        // Paint the "side velocity" (0x63) a colour that matches the colour scheme.
-        // F0h 00h 20h 29h 02h 10h 0Ah <velocity> <Colour> F7h
-        that.sendToUi({ type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x10, 0xA, 0x63, that.model.colourLevels.velocity]});
+        // Leave a space for the nonexistent trailing column.
+        colourArray.push([0,0,0]);
 
-        fluid.each(that.options.colourSchemes, function (colourScheme) {
-            if (colourScheme.control) {
-                that.sendToUi({ type: "control", channel: 0, number: colourScheme.control, value: colourScheme.velocity});
+        for (var row = 1; row < 10; row++) {
+            for (var col = 0; col < 10; col++ ) {
+                var noteNumber = (row * 10) + col;
+                if (isLaunchpadPro3) {
+                    // Solid
+                    colourArray.push(3);
+                    // Our note index
+                    colourArray.push(noteNumber);
+                }
+
+                var rValue = fluid.get(that, ["model", "deviceColours", noteNumber, "r"]) || 0;
+                colourArray.push(lsu.router.colour.calculateSingleColor(that, "r", rValue / 256, isLaunchpadPro3));
+
+                var gValue = fluid.get(that, ["model", "deviceColours", noteNumber, "g"]) || 0;
+                colourArray.push(lsu.router.colour.calculateSingleColor(that, "g", gValue / 256, isLaunchpadPro3));
+
+                var bValue = fluid.get(that, ["model", "deviceColours", noteNumber, "b"]) || 0;
+                colourArray.push(lsu.router.colour.calculateSingleColor(that, "b", bValue / 256, isLaunchpadPro3));
             }
-        });
+        }
+        return fluid.flatten(colourArray);
+    };
+
+    lsu.router.colour.generateColourArray = function (that) {
+        if (that.model.deviceType === "launchpadPro") {
+            return lsu.router.colour.colourArrayFromDeviceColours(that);
+        }
+        else if (that.model.deviceType === "launchpadPro3") {
+            return lsu.router.colour.colourArrayFromDeviceColours(that, true);
+        }
+
+        return [];
+    };
+
+    lsu.router.colour.paintDevice = function (that) {
+        var headers = lsu.router.colour.getDeviceHeaders(that);
+        var colourArray = lsu.router.colour.generateColourArray(that);
+        var data = headers.concat(colourArray);
+
+        if (data.length) {
+            that.sendToUi({
+                type: "sysex",
+                data: data
+            });
+        }
     };
 
     lsu.router.colour.handleColourSchemeControl = function (that, controlValue, colourSchemeKey) {

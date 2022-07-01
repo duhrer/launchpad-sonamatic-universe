@@ -33,22 +33,13 @@
             noteInput: {
                 options: {
                     listeners: {
-                        "aftertouch.registerPressure": {
+                        "onAftertouch.registerPressure": {
                             funcName: "lsu.aftertouch.registerPressure",
                             args: ["{lsu.aftertouch}", "{arguments}.0"] // midiMessage
                         },
-                        "aftertouch.sendToNoteOut": {
-                            func: "{lsu.aftertouch}.sendToNoteOut",
-                            args: ["{arguments}.0"] // midiMessage
-                        },
-                        "noteOn.sendToNoteOut": {
-                            func: "{lsu.aftertouch}.sendToNoteOut",
-                            args: ["{arguments}.0"] // midiMessage
-                        },
-                        "noteOff.sendToNoteOut": {
-                            func: "{lsu.aftertouch}.sendToNoteOut",
-                            args: ["{arguments}.0"] // midiMessage
-                        }
+                        "onAftertouch.sendToNoteOut": "{noteOutput}.events.sendAftertouch.fire",
+                        "onNoteOn.sendToNoteOut": "{noteOutput}.events.sendNoteOn.fire",
+                        "onNoteOff.sendToNoteOut": "{noteOutput}.events.sendNoteOff.fire"
                     }
                 }
             }

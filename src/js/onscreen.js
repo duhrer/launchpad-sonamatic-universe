@@ -24,14 +24,8 @@
             noteInput: {
                 options: {
                     listeners: {
-                        "noteOn.sendToNoteOut": {
-                            funcName: "{lsu.onscreen}.sendToNoteOut",
-                            args: ["{arguments}.0"] // midiMessage
-                        },
-                        "noteOff.sendToNoteOut": {
-                            funcName: "{lsu.onscreen}.sendToNoteOut",
-                            args: ["{arguments}.0"] // midiMessage
-                        }
+                        "onNoteOn.sendToNoteOut": "{noteOutput}.events.sendNoteOn.fire",
+                        "onNoteOff.sendToNoteOut": "{noteOutput}.events.sendNoteOff.fire"
                     }
                 }
             }

@@ -11,10 +11,9 @@
     "license": "BSD-3-Clause",
     "dependencies": {
         "bergson": "0.14.1",
-        "flocking": "2.0.2",
-        "flocking-midi": "1.0.0-dev.20200715T193144Z.94cf29b.gh-30",
         "infusion": "4.1.0-dev.20220506T100231Z.d681cae69.FLUID-6728",
-        "tone": "14.7.77"
+        "tone": "14.7.77",
+        "youme": "github:duhrer/youme#GH-1"
     },
     "devDependencies": {
         "eslint": "8.14.0",
