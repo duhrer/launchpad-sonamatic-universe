@@ -414,6 +414,17 @@
                 data: data
             });
         }
+
+        if (that.model.deviceType === "launchpadPro") {
+            // Paint the "side velocity" (Pro) or "badge button" (Pro MK3) (0x63) a colour that matches the colour scheme.
+            // Pro: F0h 00h 20h 29h 02h 10h 0Ah <velocity> <Colour> F7h
+            // MK3: F0h 00h 20h 29h 02h 10h 0Ah <velocity> <Colour> F7h
+            that.sendToUi({ type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x10, 0xA, 0x63, that.model.colourLevels.velocity]});
+        }
+        else if (that.model.deviceType === "launchpadPro3") {
+            that.sendToUi({ type: "noteOn", channel: 0, note: 0x63, velocity: that.model.colourLevels.velocity});
+        }
+
     };
 
     lsu.router.colour.handleColourSchemeControl = function (that, controlValue, colourSchemeKey) {
