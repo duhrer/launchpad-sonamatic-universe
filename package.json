@@ -18,6 +18,9 @@
     "devDependencies": {
         "eslint": "8.14.0",
         "eslint-config-fluid": "2.0.1",
-        "fluid-lint-all": "1.2.2"
+        "fluid-lint-all": "1.2.2",
+        "mkdirp": "^1.0.4",
+        "recursive-copy": "^2.0.14",
+        "rimraf": "^3.0.2"
     }
 }
