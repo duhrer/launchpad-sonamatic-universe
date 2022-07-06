@@ -29,7 +29,7 @@
                             options: {
                                 dynamicComponents: {
                                     connection: {
-                                        type: "lsu.launchpadConnection.input.withCapo",
+                                        // type: "lsu.launchpadConnection.input.withCapo",
                                         options: {
                                             listeners: {
                                                 "onPadDown.handlePadMessage": {

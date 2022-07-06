@@ -8,4 +8,13 @@
         var rows = fluid.generate(10, function () { return fluid.copy(singleRowTemplate); }, true);
         return rows;
     };
+
+    lsu.generateEmptyGrid = function (rows, cols) {
+        var singleRow = fluid.generate(cols, 0);
+        var allRows = fluid.generate(rows, function () {
+            return fluid.copy(singleRow);
+        }, true);
+        return allRows;
+    };
+
 })(fluid);
