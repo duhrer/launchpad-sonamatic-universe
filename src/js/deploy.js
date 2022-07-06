@@ -74,7 +74,7 @@ fluid.defaults("lsu.generator", {
         "./node_modules/youme/src/js/system.js",
         "./node_modules/youme/src/js/messageEventHolders.js",
         "./node_modules/youme/src/js/connection.js",
-        "./node_modules/youme/src/js/portConnector.js",
+        "./node_modules/youme/src/js/remappingMultiPortConnector.js",
         "./node_modules/youme/src/js/ui/templateRenderer.js",
         "./node_modules/youme/src/js/ui/selectBox.js",
         "./node_modules/youme/src/js/ui/portSelectorView.js",

@@ -1,3 +1,4 @@
+// TODO: Rewrite to only send column and row, let the router figure out the notes.
 (function (fluid) {
     "use strict";
     var lsu = fluid.registerNamespace("lsu");
@@ -5,7 +6,9 @@
     fluid.defaults("lsu.pad.base", {
         gradeNames: ["lsu.templateRenderer"],
         events: {
-            onMessage: null
+            onMessage: null,
+            onPadDown: null,
+            onPadUp: null
         },
         markup: {
             container: "<div class='lsu-pad'></div>"
@@ -79,6 +82,10 @@
                 r: 0,
                 g: 0,
                 b: 0
+            },
+            focus: {
+                row: -1,
+                col: -1
             }
         },
         invokers: {
@@ -162,7 +169,12 @@
         var g = fluid.get(that, "model.padColour.g") || 0;
         var b = fluid.get(that, "model.padColour.b") || 0;
         var template = (r || g || b) ? that.options.templates.backgroundColour : that.options.templates.noBackgroundColour;
-        var backgroundColourCss = fluid.stringTemplate(template, { r: r, g: g, b: b });
+        var scaledValues = {
+            r: Math.round(r * 255),
+            g: Math.round(g * 255),
+            b: Math.round(b * 255)
+        };
+        var backgroundColourCss = fluid.stringTemplate(template, scaledValues);
         that.container.attr("style", backgroundColourCss );
     };
 
@@ -171,8 +183,10 @@
         markup: {
             container: "<button class='lsu-pad lsu-pad-note'></button>"
         },
+
         clickVelocity: 100, // Roughly 80% of what's possible (127).
-        note: 0,
+
+        // TODO: Refactor to make everything row/column based, perhaps collapsing the above into this.
         model: {
             note: "{that}.options.note"
         },
@@ -198,12 +212,14 @@
     lsu.pad.note.handleDown = function (that, event) {
         that.focus();
         event.preventDefault();
-        that.events.onMessage.fire({ type: "note", channel: 0, note: that.options.note, velocity: that.options.clickVelocity});
+        that.events.onMessage.fire({ type: "noteOn", channel: 0, note: that.options.note, velocity: that.options.clickVelocity});
+        that.events.onPadDown.fire({ row: that.options.row, col: that.options.col, velocity: that.options.clickVelocity});
     };
 
     lsu.pad.note.handleUp = function (that, event) {
         event.preventDefault();
-        that.events.onMessage.fire({ type: "note", channel: 0, note: that.options.note, velocity: 0});
+        that.events.onMessage.fire({ type: "noteOff", channel: 0, note: that.options.note, velocity: 0});
+        that.events.onPadUp.fire({ row: that.options.row, col: that.options.col, velocity: 0});
     };
 
     fluid.defaults("lsu.pad.control", {
@@ -213,9 +229,6 @@
         },
         clickValue: 100, // Roughly 80% of what's possible (127).
         control: 0,
-        model: {
-            controls: {}
-        },
         invokers: {
             handleDown: {
                 funcName: "lsu.pad.control.handleDown",
@@ -232,10 +245,12 @@
         that.focus();
         event.preventDefault();
         that.events.onMessage.fire({ type: "control", channel: 0, number: that.options.control, value: that.options.clickValue});
+        that.events.onPadDown.fire({ row: that.options.row, col: that.options.col, velocity: that.options.clickValue});
     };
 
     lsu.pad.control.handleUp = function (that, event) {
         event.preventDefault();
         that.events.onMessage.fire({ type: "control", channel: 0, number: that.options.control, value: 0});
+        that.events.onPadUp.fire({ row: that.options.row, col: that.options.col, velocity: 0});
     };
 })(fluid);

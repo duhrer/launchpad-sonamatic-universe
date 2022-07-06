@@ -1,4 +1,5 @@
 (function (fluid) {
+    // The onscreen grid, which is only responsible for drawing itself and relaying back hit pads.
     "use strict";
     var lsu = fluid.registerNamespace("lsu");
 
@@ -10,6 +11,7 @@
         cols: "{that}.colDefs.length",
         rows: 10,
         colDefs: [],
+
         dynamicComponents: {
             pad: {
                 type: "{source}.type",
@@ -23,8 +25,12 @@
                     cols: "{lsu.row}.options.cols",
                     rows: "{lsu.row}.options.rows",
                     listeners: {
-                        "onMessage.relayToGrid": {
-                            func: "{lsu.grid}.events.onPadMessage.fire",
+                        "onPadDown.relayToGrid": {
+                            func: "{lsu.grid}.events.onPadDown.fire",
+                            args: ["{arguments}.0"] // midiMessage
+                        },
+                        "onPadUp.relayToGrid": {
+                            func: "{lsu.grid}.events.onPadUp.fire",
                             args: ["{arguments}.0"] // midiMessage
                         }
                     },
@@ -49,15 +55,15 @@
             container: "<div class='lsu-grid'></div>"
         },
         events: {
-            onPadMessage: null
+            onPadDown: null,
+            onPadUp: null
         },
         defaultColour: { r: 0, g: 0, b: 0},
         rows: 0,
         model: {
             focus: { col: 0, row: 0 },
-            notes: "@expand:fluid.generate(128, 0)",
-            gridColours: "@expand:lsu.grid.generateDefaultColourMap()",
-            controls: "@expand:fluid.generate(128, 0)"
+
+            gridColours: "@expand:lsu.generateDefaultColourMap()"
         },
         rowDefs: [],
         dynamicComponents: {
@@ -83,10 +89,6 @@
             handleKeydown: {
                 funcName: "lsu.grid.handleKeydown",
                 args: ["{that}", "{arguments}.0"] // event
-            },
-            handlePadMessage: {
-                funcName: "lsu.grid.handlePadMessage",
-                args: ["{that}", "{arguments}.0"] // midiMessage
             }
         },
         listeners: {
@@ -94,22 +96,27 @@
                 this: "{that}.container",
                 method: "keydown",
                 args: ["{that}.handleKeydown"]
-            },
-            "onPadMessage.handlePadMessage": {
-                funcName: "lsu.grid.handlePadMessage",
-                args: ["{that}", "{arguments}.0"] // midiMessage
             }
         }
     });
 
-    lsu.grid.handlePadMessage = function (that, midiMessage) {
-        var toUpdate = midiMessage.type === "control" ? "controls" : "notes";
-        var arrayIndex = midiMessage.type ===  "control" ? midiMessage.number : midiMessage.note;
-        var messageValue = midiMessage.type === "control" ? midiMessage.value : midiMessage.velocity;
-        that.applier.change([toUpdate, arrayIndex], messageValue);
-    };
+    /**
+     * @typedef ColourDef
+     * @type {Object}
+     * @property {Number} r - The amount of red in the colour, from 0 to 1.
+     * @property {Number} g - The amount of green in the colour, from 0 to 1.
+     * @property {Number} b - The amount of blue in the colour, from 0 to 1.
+     *
+     */
 
-    lsu.grid.generateDefaultColourMap = function () {
+    /**
+     *
+     * Generate a default colour map, with all cells except the colour controls black.
+     *
+     * @return {Array<Array<ColourDef>>} - An array of colour definitions.
+     *
+     */
+    lsu.grid.generateDefaultColourGrid = function () {
         var singleRow = fluid.generate(10, function () {
             return { r: 0, g: 0, b: 0};
         }, true);
@@ -117,11 +124,11 @@
             return fluid.copy(singleRow);
         }, true);
 
-        allRows.push([
+        allRows.unshift([
             { r: 0,   g: 0,   b: 0 },
             { r: 255, g: 255, b: 255 },
             { r: 255, g: 0,   b: 0 },
-            { r: 255, g: 64,  b: 0 }, // In HTML the RGB values for orange would be way off, but for the Launchpad Pro it works.
+            { r: 255, g: 64,  b: 0 },
             { r: 255, g: 255, b: 0 },
             { r: 0,   g: 255, b: 0 },
             { r: 0,   g: 255, b: 255 },
@@ -147,12 +154,12 @@
                     that.applier.change("focus.col", nextCol);
                     break;
                 case "ArrowUp":
-                    var previousRow = (that.options.rows + that.model.focus.row - 1) % that.options.rows;
-                    that.applier.change("focus.row", previousRow);
-                    break;
-                case "ArrowDown":
                     var nextRow = (that.model.focus.row + 1) % that.options.rows;
                     that.applier.change("focus.row", nextRow);
+                    break;
+                case "ArrowDown":
+                    var previousRow = (that.options.rows + that.model.focus.row - 1) % that.options.rows;
+                    that.applier.change("focus.row", previousRow);
                     break;
                 default:
                     break;
@@ -164,6 +171,11 @@
         gradeNames: ["lsu.grid"],
         cols: 10,
         rows: 10,
-        rowDefs: lsu.rowDefs.launchpadPro
+        rowDefs: lsu.rowDefs.launchpadPro,
+
+        events: {
+            onPadDown: null,
+            onPadUp: null
+        }
     });
 })(fluid);

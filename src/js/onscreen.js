@@ -3,49 +3,63 @@
     var lsu = fluid.registerNamespace("lsu");
     fluid.defaults("lsu.onscreen", {
         gradeNames: ["lsu.router.colour"],
-        modelListeners: {
-            "notes.*": {
-                excludeSource: "init",
-                funcName: "lsu.onscreen.updateDeviceColourMap",
-                args: ["{that}", "{change}.path", "{change}.value", "deviceColours"] // changePath, changeValue, mapKey
-            }
-        },
         components: {
             grid: {
                 options: {
                     listeners: {
-                        "onPadMessage.handlePadMessage": {
+                        "onPadDown.handlePadMessage": {
                             funcName: "lsu.onscreen.handlePadMessage",
-                            args: ["{that}", "{arguments}.0"] // midiMessage
+                            args: ["{lsu.onscreen}", "{arguments}.0"] // midiMessage
+                        },
+                        "onPadUp.handlePadMessage": {
+                            funcName: "lsu.onscreen.handlePadMessage",
+                            args: ["{lsu.onscreen}", "{arguments}.0"] // midiMessage
                         }
                     }
                 }
             },
-            noteInput: {
+            noteInputs: {
                 options: {
                     listeners: {
-                        "onNoteOn.sendToNoteOut": "{noteOutput}.events.sendNoteOn.fire",
-                        "onNoteOff.sendToNoteOut": "{noteOutput}.events.sendNoteOff.fire"
+                        "onNoteOn.sendToNoteOut": "{noteOutputs}.events.sendNoteOn.fire",
+                        "onNoteOff.sendToNoteOut": "{noteOutputs}.events.sendNoteOff.fire"
+                    },
+                    components: {
+                        portConnector: {
+                            options: {
+                                dynamicComponents: {
+                                    connection: {
+                                        type: "lsu.launchpadConnection.input.withCapo",
+                                        options: {
+                                            listeners: {
+                                                "onPadDown.handlePadMessage": {
+                                                    funcName: "lsu.onscreen.handlePadMessage",
+                                                    args: ["{lsu.onscreen}", "{arguments}.0"] // padMessage
+                                                },
+                                                "onPadUp.handlePadMessage": {
+                                                    funcName: "lsu.onscreen.handlePadMessage",
+                                                    args: ["{lsu.onscreen}", "{arguments}.0"] // padMessage
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     });
 
-    lsu.onscreen.updateDeviceColourMap = function (that, changePath, changeValue, mapKey) {
-        var scaledChangeValue = changeValue ? changeValue / 128 : 0;
-        var r = lsu.router.colour.calculateSingleColor(that, "r", scaledChangeValue);
-        var g = lsu.router.colour.calculateSingleColor(that, "g", scaledChangeValue);
-        var b = lsu.router.colour.calculateSingleColor(that, "b", scaledChangeValue);
-        that.applier.change([mapKey, changePath[1]], { r: r, g: g, b: b });
-    };
+    lsu.onscreen.handlePadMessage = function (that, padMessage) {
+        if (padMessage.row !== 0) {
+            var saturation = padMessage.velocity / 127;
+            var r = lsu.router.colour.calculateSingleColor(that, "r", saturation);
+            var g = lsu.router.colour.calculateSingleColor(that, "g", saturation);
+            var b = lsu.router.colour.calculateSingleColor(that, "b", saturation);
 
-    lsu.onscreen.handlePadMessage = function (that, midiMessage) {
-        if (midiMessage.type === "control") {
-            that.applier.change(["controls", midiMessage.number], midiMessage.value);
-        }
-        else if (midiMessage.type === "note") {
-            that.applier.change(["notes", midiMessage.note], midiMessage.velocity);
+            that.applier.change(["gridColours", padMessage.row, padMessage.col], { r: r, g: g, b: b });
         }
     };
 })(fluid);

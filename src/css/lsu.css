@@ -16,7 +16,7 @@
 
 .lsu-grid {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     gap: 0.5rem;
     margin: 2.5rem;
 }
