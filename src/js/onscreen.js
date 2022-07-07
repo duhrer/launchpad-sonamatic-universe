@@ -15,6 +15,21 @@
                             funcName: "lsu.onscreen.handlePadMessage",
                             args: ["{lsu.onscreen}", "{arguments}.0"] // midiMessage
                         }
+                    },
+                    dynamicComponents: {
+                        row: {
+                            options: {
+                                dynamicComponents: {
+                                    pad: {
+                                        options: {
+                                            listeners: {
+                                                "onMessage.sendToNoteOut": "{noteOutputs}.events.sendMessage.fire"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             },

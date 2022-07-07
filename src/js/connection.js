@@ -83,8 +83,15 @@
             var velocity = lsu.launchpadConnection.firstDefined([midiMessage.velocity, midiMessage.value, midiMessage.pressure]);
             var padMessage = { velocity: velocity };
             if (that.model.deviceType === "launchpad") {
-                padMessage.row = (8 - Math.floor(note / 16));
-                padMessage.col = (note % 16) + 1;
+                if (midiMessage.type === "control") {
+                    padMessage.row = 9;
+                    // Top row of Launchpad controls are numbered 104 105 106 107 108 109 110 111.
+                    padMessage.col = note % 103;
+                }
+                else {
+                    padMessage.row = (8 - Math.floor(note / 16));
+                    padMessage.col = (note % 16) + 1;
+                }
             }
             // Assume it's a pro-like thing.
             else {
@@ -251,14 +258,16 @@
     };
 
     lsu.uiOutputConnection.paintBadge = function (that) {
-        if (that.model.deviceType === "launchpadPro") {
-            // Paint the "side velocity" (Pro) or "badge button" (Pro MK3) (0x63) a colour that matches the colour scheme.
-            // Pro: F0h 00h 20h 29h 02h 10h 0Ah <velocity> <Colour> F7h
-            // MK3: F0h 00h 20h 29h 02h 10h 0Ah <velocity> <Colour> F7h
-            that.events.sendMessage.fire({ type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x10, 0xA, 0x63, that.model.colourScheme.velocity]});
-        }
-        else if (that.model.deviceType === "launchpadPro3") {
-            that.events.sendMessage.fire({ type: "noteOn", channel: 0, note: 0x63, velocity: that.model.colourScheme.velocity});
+        if (fluid.get(that, "model.colourScheme.velocity")) {
+            if (that.model.deviceType === "launchpadPro") {
+                // Paint the "side velocity" (Pro) or "badge button" (Pro MK3) (0x63) a colour that matches the colour scheme.
+                // Pro: F0h 00h 20h 29h 02h 10h 0Ah <velocity> <Colour> F7h
+                // MK3: F0h 00h 20h 29h 02h 10h 0Ah <velocity> <Colour> F7h
+                that.events.sendMessage.fire({ type: "sysex", data: [0, 0x20, 0x29, 0x02, 0x10, 0xA, 0x63, that.model.colourScheme.velocity]});
+            }
+            else if (that.model.deviceType === "launchpadPro3") {
+                that.events.sendMessage.fire({ type: "noteOn", channel: 0, note: 0x63, velocity: that.model.colourScheme.velocity});
+            }
         }
     };
 

@@ -14,13 +14,14 @@
         var tuning = fluid.get(portConnector, ["options", "tunings", that.model.deviceType, remappingKey]);
         if (tuning && ["noteOn", "noteOff", "control", "aftertouch"].includes(midiMessage.type)) {
             if (midiMessage.type === "control") {
-                if (tuning[midiMessage.number] !== undefined) {
+                var remappedNote = tuning[midiMessage.number];
+                if (remappedNote !== undefined) {
                     var messageType = midiMessage.value ? "noteOn" : "noteOff";
                     relayEventName = midiMessage.value ? "onNoteOn" : "onNoteOff";
                     remappedMessage = {
                         type: messageType,
                         channel: midiMessage.channel,
-                        note: tuning[midiMessage.number],
+                        note: remappedNote,
                         velocity: midiMessage.value
                     };
                 }
@@ -28,13 +29,12 @@
             // Exclude channel pressure aftertouch, but remap poly aftertouch.
             else if (midiMessage.note !== undefined) {
                 if (tuning[midiMessage.note]) {
-                    remappedMessage.note = tuning[midiMessage.note] + that.model.capoShift;
-                }
-                else {
-                    remappedMessage.note += that.model.capoShift;
+                    remappedMessage.note = tuning[midiMessage.note];
                 }
             }
         }
+
+        remappedMessage.note += that.model.capoShift;
 
         portConnector.events[relayEventName].fire(remappedMessage);
     };

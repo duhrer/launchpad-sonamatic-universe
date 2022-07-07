@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Aftertouch Demo</title>
+        <title>"Fretboard" Demo</title>
 
         <script src="../../node_modules/infusion/dist/infusion-all.js"></script>
 
@@ -15,8 +15,6 @@
         <script src="../../node_modules/youme/src/js/ui/multiSelectBox.js"></script>
         <script src="../../node_modules/youme/src/js/ui/multiPortSelectorView.js"></script>
 
-        <!-- bergson requirements -->
-        <script src="../../node_modules/bergson/dist/bergson-only.js"></script>
 
         <script src="../js/utils.js"></script>
         <script src="../js/stringTemplateRenderingView.js"></script>
@@ -28,21 +26,27 @@
         <script src="../js/remappingMultiPortConnector.js"></script>
         <script src="../js/router.js"></script>
 
-        <script src="../js/aftertouch.js"></script>
+
+        <script src="../js/fretboard.js"></script>
 
         <link rel="stylesheet" href="../../node_modules/youme/src/css/youme.css"/>
         <link rel="stylesheet" href="../css/lsu.css"/>
     </head>
     <body>
-        <h3>Aftertouch Demo</h3>
+        <h3>"Fretboard" Demo</h3>
+        <p>
+            A demonstration of the launchpad tuned as if it were a guitar fretboard.  The bottom six rows correspond
+            to the strings on a guitar in standard tuning.  The top two rows add  "high A" and "high D" string.  The top
+            left controls act as a "capo", so that you can play higher or lower.
+        </p>
 
-        <div class="aftertouch"></div>
+        <div class="fretboard"></div>
 
         <a href="../../index.html">Select A Different Journey</a>
 
         <script>
             var lsu = fluid.registerNamespace("lsu");
-            var component = lsu.aftertouch(".aftertouch");
+            var component = lsu.fretboard(".fretboard");
         </script>
     </body>
 </html>

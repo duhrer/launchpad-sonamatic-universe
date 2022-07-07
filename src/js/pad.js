@@ -73,10 +73,15 @@
             noBackgroundColour: "background-color: none",
             backgroundColour: "background-color: rgb(%r, %g, %b)"
         },
+
+        tuning: lsu.tunings.launchpadPro.guitarE,
+
         clickKeys: ["Enter", " "],
         col: -1,
         row: -1,
         model: {
+            capoShift: 0,
+
             velocity: 0,
             padColour: {
                 r: 0,
@@ -205,6 +210,11 @@
                 this: "{that}.container",
                 method: "keydown",
                 args: ["{that}.handleKeydown"]
+            },
+            "onCreate.bindKeyup": {
+                this: "{that}.container",
+                method: "keyup",
+                args: ["{that}.handleKeyup"]
             }
         }
     });
@@ -212,23 +222,44 @@
     lsu.pad.note.handleDown = function (that, event) {
         that.focus();
         event.preventDefault();
-        that.events.onMessage.fire({ type: "noteOn", channel: 0, note: that.options.note, velocity: that.options.clickVelocity});
+
+        // Add support for the same kind of tuning that devices support.
+        var tuningNote = fluid.get(that, ["options", "tuning", "note", that.options.note]);
+        var note = tuningNote !== undefined ? tuningNote : that.options.note;
+
+        note += that.model.capoShift;
+
+        // Keyboard events can easily repeat, so make sure to stop any existing notes if we retrigger because of
+        // a repeat.
+        that.events.onMessage.fire({ type: "noteOff", channel: 0, note: note, velocity: 0});
+
+        that.events.onMessage.fire({ type: "noteOn", channel: 0, note: note, velocity: that.options.clickVelocity});
         that.events.onPadDown.fire({ row: that.options.row, col: that.options.col, velocity: that.options.clickVelocity});
     };
 
     lsu.pad.note.handleUp = function (that, event) {
         event.preventDefault();
-        that.events.onMessage.fire({ type: "noteOff", channel: 0, note: that.options.note, velocity: 0});
+
+        // Add support for the same kind of tuning that devices support.
+        var tuningNote = fluid.get(that, ["options", "tuning", "note", that.options.note]);
+        var note = tuningNote !== undefined ? tuningNote : that.options.note;
+
+        note += that.model.capoShift;
+
+        that.events.onMessage.fire({ type: "noteOff", channel: 0, note: note, velocity: 0});
         that.events.onPadUp.fire({ row: that.options.row, col: that.options.col, velocity: 0});
     };
 
     fluid.defaults("lsu.pad.control", {
         gradeNames: ["lsu.pad"],
         markup: {
-            container: "<button class='lsu-pad lsu-pad-control'></button>"
+            container: "<button class='lsu-pad lsu-pad-control lsu-pad-control-%control'></button>"
         },
         clickValue: 100, // Roughly 80% of what's possible (127).
         control: 0,
+        model: {
+            control: "{that}.options.control"
+        },
         invokers: {
             handleDown: {
                 funcName: "lsu.pad.control.handleDown",
@@ -244,13 +275,33 @@
     lsu.pad.control.handleDown = function (that, event) {
         that.focus();
         event.preventDefault();
-        that.events.onMessage.fire({ type: "control", channel: 0, number: that.options.control, value: that.options.clickValue});
+
+        // Add support for the same kind of tuning that devices support.
+        var tuningNote = fluid.get(that, ["options", "tuning", "control", that.options.control]);
+        if (tuningNote !== undefined) {
+            tuningNote += that.model.capoShift;
+            that.events.onMessage.fire({ type: "noteOn", channel: 0, note: tuningNote, velocity: that.options.clickValue});
+        }
+        else {
+            that.events.onMessage.fire({ type: "control", channel: 0, number: that.options.control, value: that.options.clickValue});
+        }
+
         that.events.onPadDown.fire({ row: that.options.row, col: that.options.col, velocity: that.options.clickValue});
     };
 
     lsu.pad.control.handleUp = function (that, event) {
         event.preventDefault();
-        that.events.onMessage.fire({ type: "control", channel: 0, number: that.options.control, value: 0});
+
+        // Add support for the same kind of tuning that devices support.
+        var tuningNote = fluid.get(that, ["options", "tuning", "control", that.options.control]);
+        if (tuningNote !== undefined) {
+            tuningNote += that.model.capoShift;
+            that.events.onMessage.fire({ type: "noteOff", channel: 0, note: tuningNote, velocity: 0});
+        }
+        else {
+            that.events.onMessage.fire({ type: "control", channel: 0, number: that.options.control, value: 0});
+        }
+
         that.events.onPadUp.fire({ row: that.options.row, col: that.options.col, velocity: 0});
     };
 })(fluid);

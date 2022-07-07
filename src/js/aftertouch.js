@@ -35,6 +35,35 @@
             }
         },
         components: {
+            grid: {
+                options: {
+                    listeners: {
+                        "onPadDown.updateVelocityGrid": {
+                            funcName: "lsu.aftertouch.handlePadChange",
+                            args: ["{lsu.aftertouch}", "{arguments}.0"] // padMessage
+                        },
+                        "onPadUp.updateVelocityGrid": {
+                            funcName: "lsu.aftertouch.handlePadChange",
+                            args: ["{lsu.aftertouch}", "{arguments}.0"] // padMessage
+                        }
+                    },
+                    dynamicComponents: {
+                        row: {
+                            options: {
+                                dynamicComponents: {
+                                    pad: {
+                                        options: {
+                                            listeners: {
+                                                "onMessage.sendToNoteOut": "{noteOutputs}.events.sendMessage.fire"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             // We use a bergson scheduler to poll for updates because aftertouch events are fired far too quickly for
             // even a Pro MK3 to keep up with.
             scheduler: {
@@ -93,7 +122,7 @@
     lsu.aftertouch.startPolling = function (scheduler, callback) {
         scheduler.schedule({
             type: "repeat",
-            freq: 10, // times per second
+            freq: 30, // times per second
             callback: callback
         });
 

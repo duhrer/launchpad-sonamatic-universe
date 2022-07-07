@@ -14,6 +14,22 @@
     border-radius: 50%;
 }
 
+.lsu-pad-control-91:before {
+    content: "\1403";
+}
+
+.lsu-pad-control-92:before {
+    content: "\1401";
+}
+
+.lsu-pad-control-93:before {
+    content: "\140A";
+}
+
+.lsu-pad-control-94:before {
+    content: "\1405";
+}
+
 .lsu-grid {
     display: flex;
     flex-direction: column-reverse;
@@ -28,6 +44,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
+    .lsu-pad {
+        color:white;
+    }
+
     body {
         background-color: black;
         color: white;
@@ -41,6 +61,10 @@
 }
 
 @media (prefers-color-scheme: light) {
+    .lsu-pad {
+        color:black;
+    }
+
     body {
         background-color: white;
         color: black;
