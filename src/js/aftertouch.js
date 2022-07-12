@@ -122,7 +122,7 @@
     lsu.aftertouch.startPolling = function (scheduler, callback) {
         scheduler.schedule({
             type: "repeat",
-            freq: 30, // times per second
+            freq: 60, // times per second
             callback: callback
         });
 
