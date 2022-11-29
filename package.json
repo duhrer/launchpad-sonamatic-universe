@@ -9,18 +9,22 @@
     },
     "author": "Tony Atkins <duhrer@gmail.com>",
     "license": "BSD-3-Clause",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/duhrer/launchpad-sonamatic-universe"
+    },
     "dependencies": {
         "bergson": "0.14.1",
-        "infusion": "4.1.0-dev.20220506T100231Z.d681cae69.FLUID-6728",
+        "infusion": "4.5.0",
         "tone": "14.7.77",
         "youme": "github:duhrer/youme#GH-1"
     },
     "devDependencies": {
-        "eslint": "8.14.0",
-        "eslint-config-fluid": "2.0.1",
-        "fluid-lint-all": "1.2.2",
-        "mkdirp": "^1.0.4",
-        "recursive-copy": "^2.0.14",
-        "rimraf": "^3.0.2"
+        "eslint": "8.28.0",
+        "eslint-config-fluid": "2.1.1",
+        "fluid-lint-all": "1.2.3",
+        "mkdirp": "1.0.4",
+        "recursive-copy": "2.0.14",
+        "rimraf": "3.0.2"
     }
 }
