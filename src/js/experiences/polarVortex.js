@@ -1,4 +1,5 @@
-(function (fluid) {
+/* globals Tone */
+(function (fluid, Tone) {
     "use strict";
     var lsu = fluid.registerNamespace("lsu");
 
@@ -136,32 +137,32 @@
             if (midiMessage.number >= 1 && midiMessage.number <= 8) {
                 var colourSchemeKey = false;
                 switch (midiMessage.number) {
-                case 1:
-                    colourSchemeKey = "white";
-                    break;
-                case 2:
-                    colourSchemeKey = "red";
-                    break;
-                case 3:
-                    colourSchemeKey = "orange";
-                    break;
-                case 4:
-                    colourSchemeKey = "yellow";
-                    break;
-                case 5:
-                    colourSchemeKey = "green";
-                    break;
-                case 6:
-                    colourSchemeKey = "blue";
-                    break;
-                case 7:
-                    colourSchemeKey = "indigo";
-                    break;
-                case 8:
-                    colourSchemeKey = "violet";
-                    break;
-                default:
-                    break;
+                    case 1:
+                        colourSchemeKey = "white";
+                        break;
+                    case 2:
+                        colourSchemeKey = "red";
+                        break;
+                    case 3:
+                        colourSchemeKey = "orange";
+                        break;
+                    case 4:
+                        colourSchemeKey = "yellow";
+                        break;
+                    case 5:
+                        colourSchemeKey = "green";
+                        break;
+                    case 6:
+                        colourSchemeKey = "blue";
+                        break;
+                    case 7:
+                        colourSchemeKey = "indigo";
+                        break;
+                    case 8:
+                        colourSchemeKey = "violet";
+                        break;
+                    default:
+                        break;
                 }
 
                 if (colourSchemeKey) {
@@ -200,30 +201,30 @@
                     // decrease rotation
                     case 95:
                         // TODO: Make a precision add that includes rounding before dividing.
-                        var updatedRotation = ((100 * that.model.rotation) - (100 * that.options.rotationIncrement)) / 100;
-                        if (Math.abs(updatedRotation) <= that.options.maxRotation) {
-                            that.applier.change("rotation", updatedRotation);
+                        var decreasedRotation = ((100 * that.model.rotation) - (100 * that.options.rotationIncrement)) / 100;
+                        if (Math.abs(decreasedRotation) <= that.options.maxRotation) {
+                            that.applier.change("rotation", decreasedRotation);
                         }
                         break;
                     // increase rotation
                     case 96:
-                        var updatedRotation = ((100 * that.model.rotation) + (100 * that.options.rotationIncrement)) / 100;
-                        if (Math.abs(updatedRotation) <= that.options.maxRotation) {
-                            that.applier.change("rotation", updatedRotation);
+                        var increasedRotation = ((100 * that.model.rotation) + (100 * that.options.rotationIncrement)) / 100;
+                        if (Math.abs(increasedRotation) <= that.options.maxRotation) {
+                            that.applier.change("rotation", increasedRotation);
                         }
                         break;
                     // decrease attraction
                     case 97:
-                        var updatedAttraction = ((100 * that.model.attraction) - (100 * that.options.attractionIncrement)) / 100;
-                        if (Math.abs(updatedAttraction) <= that.options.maxAttraction) {
-                            that.applier.change("attraction", updatedAttraction);
+                        var decreasedAttraction = ((100 * that.model.attraction) - (100 * that.options.attractionIncrement)) / 100;
+                        if (Math.abs(decreasedAttraction) <= that.options.maxAttraction) {
+                            that.applier.change("attraction", decreasedAttraction);
                         }
                         break;
                     // increase attraction
                     case 98:
-                        var updatedAttraction = ((100 *that.model.attraction) + (100 * that.options.attractionIncrement)) / 100;
-                        if (Math.abs(updatedAttraction) <= that.options.maxAttraction) {
-                            that.applier.change("attraction", updatedAttraction);
+                        var increasedAttraction = ((100 * that.model.attraction) + (100 * that.options.attractionIncrement)) / 100;
+                        if (Math.abs(increasedAttraction) <= that.options.maxAttraction) {
+                            that.applier.change("attraction", increasedAttraction);
                         }
                         break;
                     default:
@@ -259,7 +260,7 @@
                 args: ["{that}"]
             }
         }
-    })
+    });
 
     fluid.defaults("lsu.polarVortex", {
         // Although we want the colour, we have to use the base grade to avoid entangling all units' colour grids.
@@ -369,7 +370,7 @@
                                                 colourScheme: "{lsu.polarVortex}.model.colourScheme",
                                                 colourSchemeName: "{lsu.polarVortex}.model.colourSchemeName",
                                                 attraction: "{lsu.polarVortex}.model.attraction",
-                                                rotation: "{lsu.polarVortex}.model.rotation",
+                                                rotation: "{lsu.polarVortex}.model.rotation"
                                             },
                                             modelRelay: [
                                                 {
@@ -513,7 +514,7 @@
 
         var routerElement = that.locate("router");
         routerElement.show();
-    }
+    };
 
     lsu.polarVortex.handlePadMessage = function (that, padMessage) {
         if (padMessage.row !== 0 && padMessage.row !== 9) {
@@ -538,8 +539,8 @@
         }
     };
 
-    lsu.polarVortex.inBounds = function(col, row) {
-        return (col >= 0 || row >= 0 || col <= 30 || row <=30);
+    lsu.polarVortex.inBounds = function (col, row) {
+        return (col >= 0 || row >= 0 || col <= 30 || row <= 30);
     };
 
     // Evaluate all "cells" and add their energy to a single sliced view of all cells, keyed by [row][col]
@@ -612,7 +613,7 @@
     // Safely create an empty grid to use for grid-ising the raw position of all cells.
     lsu.polarVortex.generateEmptyGrid = function () {
         var singleRow = fluid.generate(30, 0);
-        var grid = fluid.generate(30, function (){ return fluid.copy(singleRow); }, true);
+        var grid = fluid.generate(30, function () { return fluid.copy(singleRow); }, true);
         return grid;
     };
 
@@ -627,7 +628,7 @@
         that.scheduler.start();
     };
 
-    lsu.polarVortex.updateChains= function (that) {
+    lsu.polarVortex.updateChains = function (that) {
         // If our speed has changed, update the scheduler and trigger the next step early to avoid a "stutter".
         if (that.currentBpm !== that.model.bpm) {
             that.currentBpm = that.model.bpm;
@@ -669,7 +670,7 @@
         panner.connect(gain);
 
         var startingFrequency = lsu.polarVortex.getFrequencyFromPolar(that, firstCellDef.radius, firstCellDef.azimuth);
-        const synth = new Tone.FMSynth();
+        var synth = new Tone.FMSynth();
         synth.connect(panner);
         synth.triggerAttack(startingFrequency);
 
@@ -802,4 +803,4 @@
         var averageEnergy = totalEnergy / chain.cells.length;
         return averageEnergy;
     };
-})(fluid);
+})(fluid, Tone);
