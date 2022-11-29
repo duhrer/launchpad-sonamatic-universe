@@ -5,19 +5,21 @@ grid controllers.
 
 ## Prerequisites
 
-You need a supported browser to run the applications provided by this package.  All applications in this package rely on
-the [Web MIDI API](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API).  At the moment, this is only
-supported in Chrome and derivatives (such as Opera and Edge).
+You need a supported browser to run the applications provided by this package. All applications in this package rely on
+the [Web MIDI API](https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API). At the moment, this is only
+supported in Chrome and derivatives (such as Opera, Edge, and Brave).
 
-The applications in this repository are best experienced with a supported Novation Launchpad grid controller. Currently,
-the following are supported:
+The experiences in this repository work best with a supported Novation Launchpad grid controller. Currently, the
+following are supported:
 
 - Launchpad Pro (original version)
 - Launchpad Pro (MK3)
 - Launchpad (original version)
 
- If you don't have a supported controller, in most cases an onscreen equivalent of the Launchpad is available.  This can
- be controlled using your keyboard and/or mouse.
+ If you don't have a supported controller, in most cases an onscreen equivalent of the Launchpad is available. This can
+ be controlled using your keyboard and/or mouse. If you have another model of Launchpad and would like to help add
+ support, please [create an issue](https://github.com/duhrer/launchpad-sonamatic-universe/issues) to talk through the
+ details.
 
 ## Try It Yourself
 
@@ -27,4 +29,4 @@ A deployed copy of the examples in this package can be found
 To try it yourself locally:
 
 1. Install all dependencies using a command like `npm install`.
-2. Open the file `index.html` in the root of the repository in your browser.
+2. Open the file `index.html` in the root of the repository in a compatible browser (see above).
