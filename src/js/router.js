@@ -24,12 +24,7 @@
         components: {
             grid: {
                 type: "lsu.grid.launchpadPro",
-                container: "{that}.dom.grid",
-                options: {
-                    model: {
-                        gridColours: "{lsu.router}.model.gridColours"
-                    }
-                }
+                container: "{that}.dom.grid"
             },
             noteInputs: {
                 type: "youme.multiPortSelectorView.inputs",
@@ -280,7 +275,7 @@
      * @param {Number} saturation - The desired "saturation" from 0 to 1.  Will be scaled down for each channel.
      * @return {number} - The scaled saturation for the given channel, from 0 to 1.
      */
-    lsu.router.colour.calculateSingleColor = function (that, channel, saturation) {
+    lsu.router.colour.calculateSingleColour = function (that, channel, saturation) {
         var colourLevel = fluid.get(that.model.colourScheme, channel);
         var calculatedColourLevel = that.model.brightness * colourLevel * saturation;
         return calculatedColourLevel;

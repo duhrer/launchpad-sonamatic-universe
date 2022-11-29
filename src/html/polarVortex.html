@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>"Onscreen Launchpad"</title>
+        <title>"Polar Vortex"</title>
 
         <script src="../../node_modules/infusion/dist/infusion-all.js"></script>
 
@@ -15,6 +15,7 @@
         <script src="../../node_modules/youme/src/js/ui/multiSelectBox.js"></script>
         <script src="../../node_modules/youme/src/js/ui/multiPortSelectorView.js"></script>
 
+
         <script src="../js/utils.js"></script>
         <script src="../js/stringTemplateRenderingView.js"></script>
         <script src="../js/tunings.js"></script>
@@ -25,26 +26,32 @@
         <script src="../js/remappingMultiPortConnector.js"></script>
         <script src="../js/router.js"></script>
 
+        <!-- Bergson dependencies -->
+        <script src="../../node_modules/bergson/dist/bergson-only.js"></script>
 
-        <script src="../js/experiences/onscreen.js"></script>
+        <!-- Tone dependency -->
+        <script src="../../node_modules/tone/build/Tone.js"></script>
+
+        <script src="../js/experiences/polarVortex.js"></script>
 
         <link rel="stylesheet" href="../../node_modules/youme/src/css/youme.css"/>
         <link rel="stylesheet" href="../css/lsu.css"/>
+        <link rel="stylesheet" href="../css/experiences/polarVortex.css"/>
     </head>
     <body>
-        <h3>"Onscreen Launchpad"</h3>
-
+        <h3>"Polar Vortex"</h3>
         <p>
-            Explore the onscreen launchpad and how it behaves on its own or in combination with a connected controller.
+            Instead of playing individual notes, hitting pads adds particles that orbit an attractor (or repulsor).
+            There are controls for the speed of rotation and attraction or repulsion.
         </p>
 
-        <div class="onscreen"></div>
+        <div class="polar-vortex"></div>
 
         <a href="../../index.html">Select A Different Journey</a>
 
         <script>
             var lsu = fluid.registerNamespace("lsu");
-            var component = lsu.onscreen(".onscreen");
+            var polarVortex = lsu.polarVortex(".polar-vortex");
         </script>
     </body>
 </html>

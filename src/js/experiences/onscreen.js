@@ -70,9 +70,9 @@
     lsu.onscreen.handlePadMessage = function (that, padMessage) {
         if (padMessage.row !== 0) {
             var saturation = padMessage.velocity / 127;
-            var r = lsu.router.colour.calculateSingleColor(that, "r", saturation);
-            var g = lsu.router.colour.calculateSingleColor(that, "g", saturation);
-            var b = lsu.router.colour.calculateSingleColor(that, "b", saturation);
+            var r = lsu.router.colour.calculateSingleColour(that, "r", saturation);
+            var g = lsu.router.colour.calculateSingleColour(that, "g", saturation);
+            var b = lsu.router.colour.calculateSingleColour(that, "b", saturation);
 
             that.applier.change(["gridColours", padMessage.row, padMessage.col], { r: r, g: g, b: b });
         }

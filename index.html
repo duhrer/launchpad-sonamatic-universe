@@ -7,13 +7,56 @@
     <body>
         <h3>Welcome to the Launchpad Sonamatic Universe</h3>
 
-        <p>Choose your journey.</p>
+        <!-- TODO: Move this to a "help" or "about" block once we have a component for that? -->
 
-        <ul>
-            <li><a href="./src/html/onscreen.html">Demo of "onscreen" UI</a></li>
-            <li><a href="./src/html/aftertouch.html">Poly/channel "Aftertouch" demo</a></li>
-            <li><a href="./src/html/fretboard.html">"Fretboard" demo</a></li>
-        </ul>
+        <p>
+            This project presents a range of experiences inspired by and designed for the Novation Launchpad.  You can
+            try most of them with just a compatible browser (at time of writing, only Chrome and derivatives, such as
+            Edge, Opera, and Brave).  Many of these experiences do not produce sound on their own, but require you to
+            connect an external MIDI device or software solution.
+        </p>
+
+        <p>
+            For the best experience, a Novation Launchpad is recommended.  A compatible Launchpad controller can operate
+            most of these experiences.  In most cases, the lights of the Launchpad also form part of the user interface.
+        </p>
+
+        <p>
+            These experiences are well tested on the original Launchpad Pro (sometimes referred to as the "Mark Two") as
+            well as the Launchpad Pro 3. There is also limited support for the original Launchpad (with the Ableton
+            badge in the corner).   If you have another model of Launchpad and would like to help add support, please
+            create an issue to talk through the details.
+        </p>
+
+        <h3>Choose a Journey</h3>
+
+        <h4><a href="./src/html/onscreen.html">"Onscreen" UI</a></h4>
+
+        <p>
+            A demonstration of an "onscreen" version of the Launchpad that generates and responds to (most of) the same
+            MIDI messages. Requires an external MIDI device to produce sound.
+        </p>
+
+        <h4><a href="./src/html/aftertouch.html">"Aftertouch"</a></h4>
+
+        <p>
+            Visualise aftertouch by lighting the pads surrounding played notes. Requires an external MIDI device to
+            produce sound.
+        </p>
+
+        <h4><a href="./src/html/fretboard.html">"Fretboard"</a></h4>
+
+        <p>
+            An alternate tuning for the launchpad that emulates a guitar fretboard.  Can be used with multiple units
+            to create a single large virtual fretboard. Requires an external MIDI device to produce sound.
+        </p>
+
+        <h4><a href="./src/html/polarVortex.html">"Polar Vortex"</a></h4>
+
+        <p>
+            A playable vortex with (configurable) gravity and rotation.  Pads are held to input energy, which results
+            in swirls of lights and notes.  Does not require an external MIDI device to produce sound.
+        </p>
 
         <!-- TODO: Allow navigating through instruments using grid controller, including coming back here. -->
     </body>

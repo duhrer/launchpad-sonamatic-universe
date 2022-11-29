@@ -192,9 +192,9 @@
                 for (var col = 0; col < 10; col++) {
                     var noteVelocity = fluid.get(blurredVelocityGrid, [row, col]) || 0;
                     if (noteVelocity) {
-                        var rValue = lsu.router.colour.calculateSingleColor(that, "r", noteVelocity / 127);
-                        var gValue = lsu.router.colour.calculateSingleColor(that, "g", noteVelocity / 127);
-                        var bValue = lsu.router.colour.calculateSingleColor(that, "b", noteVelocity / 127);
+                        var rValue = lsu.router.colour.calculateSingleColour(that, "r", noteVelocity / 127);
+                        var gValue = lsu.router.colour.calculateSingleColour(that, "g", noteVelocity / 127);
+                        var bValue = lsu.router.colour.calculateSingleColour(that, "b", noteVelocity / 127);
                         newGridColours[row][col] = { r: rValue, g: gValue, b: bValue};
                     }
                 }
